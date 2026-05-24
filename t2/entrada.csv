@@ -1,5 +1,8 @@
-Alternativa,Preco,Conforto,Consumo
-Natureza,menor,maior,menor
-Opcao A,50000,7,12
-Opcao B,45000,5,10
-Opcao C,60000,9,14
+Alternativa,Preco,Porta_Malas,Consumo,Zero_a_Cem,Seguranca
+Natureza,menor,maior,maior,menor,maior
+VW Polo,88000,300,13.5,13.4,5
+Chevy Onix,86000,275,13.8,13.3,5
+Hyundai HB20,84000,300,13.1,14.5,3
+Fiat Argo,81000,300,14.1,13.4,2
+Peugeot 208,82000,265,13.6,13.4,3
+Citroen C3,75000,315,12.9,14.1,0

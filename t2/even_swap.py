@@ -114,11 +114,17 @@ def executar_algoritmo_even_swap(tabela, dicionario_natureza, interface):
         if not atributos_restantes:
             break # Fim de linha, não há como compensar
 
-        valores_unicos = sorted(tabela[atributo_eliminar].unique())
+        valores_limpos = tabela[atributo_eliminar].round(4)
+        valores_unicos = sorted(valores_limpos.unique())
+        
         if len(valores_unicos) > 1:
             # Pega a menor diferença entre as opções reais
             unidade_base = float(min(np.diff(valores_unicos)))
         else:
+            unidade_base = 1.0
+            
+        # Trava de segurança: se a unidade_base ainda der 0 (ou quase isso), forçamos para 1
+        if unidade_base <= 0: 
             unidade_base = 1.0
             
         atributo_compensar = interface.pedir_atributo_compensar(atributo_eliminar, atributos_restantes)
