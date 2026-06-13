@@ -1,4 +1,4 @@
-Alternativa,Preco,Porta_Malas,Consumo,Zero_a_Cem,Seguranca
+Alternativa,Preco,Porta_Malas,Km/L,Zero_a_Cem,Seguranca
 Natureza,menor,maior,maior,menor,maior
 VW Polo,88000,300,13.5,13.4,5
 Chevy Onix,86000,275,13.8,13.3,5
@@ -6,3 +6,4 @@ Hyundai HB20,84000,300,13.1,14.5,3
 Fiat Argo,81000,300,14.1,13.4,2
 Peugeot 208,82000,265,13.6,13.4,3
 Citroen C3,75000,315,12.9,14.1,0
+BYD Dolphin Mini,115800,230,52.0,14.9,3
