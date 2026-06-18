@@ -357,11 +357,11 @@ class InterfaceTerminal(InterfaceBase):
             print("Atributo inválido. Escolha um nome da lista.")
 
     def pedir_valor_alvo_fixar(self, atributo: str, valores_existentes: list, melhor_valor: float) -> float:
-        valores_str = ", ".join([f"{v:.4g}" for v in sorted(set(valores_existentes))])
+        valores_str = ", ".join([f"{v:.0f}" for v in sorted(set(valores_existentes))])
         print(f"  Valores existentes para '{atributo}': [{valores_str}]")
-        print(f"  O melhor valor atual (sugerido para alvo) é: {melhor_valor:.4g}")
+        print(f"  O melhor valor atual (sugerido para alvo) é: {melhor_valor:.0f}")
         while True:
-            alvo_input = input(f"  Digite o valor alvo para o qual quer igualar '{atributo}' (pressione Enter para usar o sugerido {melhor_valor:.4g}): ").strip()
+            alvo_input = input(f"  Digite o valor alvo para o qual quer igualar '{atributo}' (pressione Enter para usar o sugerido {melhor_valor:.0f}): ").strip()
             if not alvo_input:
                 return melhor_valor
             try:
@@ -381,8 +381,8 @@ class InterfaceTerminal(InterfaceBase):
                                     valor_atual: float, valor_alvo: float, 
                                     atributo_compensar: str, valor_atual_compensar: float) -> float:
         print(f"\n  [Compensação para '{alternativa}']")
-        print(f"    '{atributo_eliminar}' será alterado de {valor_atual:.4g} para o alvo {valor_alvo:.4g}.")
-        print(f"    O valor atual de '{atributo_compensar}' é {valor_atual_compensar:.4g}.")
+        print(f"    '{atributo_eliminar}' será alterado de {valor_atual:.0f} para o alvo {valor_alvo:.0f}.")
+        print(f"    O valor atual de '{atributo_compensar}' é {valor_atual_compensar:.0f}.")
         while True:
             try:
                 novo_valor = float(input(f"    Qual deve ser o NOVO valor de '{atributo_compensar}' para '{alternativa}'? "))
