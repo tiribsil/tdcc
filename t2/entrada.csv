@@ -1,5 +1,5 @@
 Alternativa,Preco,Porta_Malas,Km/L,Zero_a_Cem,Seguranca
-Natureza,menor,maior,maior,menor,maior
+Objetivo,minimizar,maximizar,maximizar,minimizar,maximizar
 VW Polo,88000,300,13.5,13.4,5
 Chevy Onix,86000,275,13.8,13.3,5
 Hyundai HB20,84000,300,13.1,14.5,3
