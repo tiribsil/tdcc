@@ -201,6 +201,20 @@ if 'historico' in st.session_state and st.session_state.historico:
 # 2. DATA INPUT SECTION (WIZARD PASSO A PASSO)
 if st.session_state.passo == "setup":
     if st.session_state.setup_step == "define_alts_crits":
+        import os
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            logo_path = os.path.join(os.path.dirname(__file__), "capalivro.png")
+            if os.path.exists(logo_path):
+                st.image(logo_path, width='stretch')
+        with col2:
+            st.markdown("""
+            A essência do método é fazer *trade-offs* do tipo: *"Quanto vale, em termos de objetivo X, a mudança necessária no objetivo Y?"*. 
+            Esses *trade-offs* devem ser compreensíveis para o Decisor, de forma a fazer sentido as trocas e os valores em questão. 
+            O Decisor precisa saber quanto está disposto a sacrificar em um objetivo para ganhar em outro.
+            """)
+        st.divider()
+        
         st.header("Passo 1: Preenchimento da Matriz de Consequências")
         
         origem = st.radio(
@@ -257,7 +271,7 @@ Hyundai HB20,84000,300,13.1,14.5,3""", language="csv")
                             obj_row = df.loc['Objetivo'].str.lower().str.strip().to_dict()
                             st.session_state.objetivo = obj_row
                             st.session_state.tabela = df.drop(index='Objetivo').astype(float)
-                            st.session_state.passo = "compensacao"
+                            st.session_state.passo = "visualizar_inicial"
                             st.rerun()
                         else:
                             st.error("Erro: Não foi encontrada uma linha com o nome 'Objetivo' na primeira coluna.")
@@ -337,7 +351,7 @@ Hyundai HB20,84000,300,13.1,14.5,3""", language="csv")
                     st.session_state.sub_setup_step = "natureza"
                 else:
                     st.session_state.tabela = st.session_state.tabela_construcao
-                    st.session_state.passo = "compensacao"
+                    st.session_state.passo = "visualizar_inicial"
                 st.rerun()
                 
         elif st.session_state.sub_setup_step == "qualitativo_melhor":
@@ -406,48 +420,58 @@ Hyundai HB20,84000,300,13.1,14.5,3""", language="csv")
                         st.session_state.sub_setup_step = "natureza"
                     else:
                         st.session_state.tabela = st.session_state.tabela_construcao
-                        st.session_state.passo = "compensacao"
+                        st.session_state.passo = "visualizar_inicial"
                 st.rerun()
                 
         elif st.session_state.sub_setup_step == "qualitativo_restantes":
             alt_atual = st.session_state.qual_restantes[st.session_state.qual_alt_idx]
             st.subheader(f"5. Avaliação Qualitativa: Alternativa '{alt_atual}'")
             
-            proximidade = st.radio(
-                f"A alternativa '{alt_atual}' está mais perto do pior ('{st.session_state.qual_pior_alt}') ou do melhor ('{st.session_state.qual_melhor_alt}')?",
-                ["pior", "melhor"],
-                key=f"prox_{crit}_{alt_atual}"
-            )
-            
             score_max = float(st.session_state.qual_melhor_score)
             score_min = float(st.session_state.qual_pior_score)
+            pior_alt = st.session_state.qual_pior_alt
+            melhor_alt = st.session_state.qual_melhor_alt
+            
+            val_min = min(score_min, score_max)
+            val_max = max(score_min, score_max)
+            if np.isclose(val_min, val_max):
+                val_max = val_min + 1.0
+                
             media = (score_max + score_min) / 2.0
             
-            if proximidade == "melhor":
-                st.info(f"A média entre o melhor ({score_max:.2f}) e o pior ({score_min:.2f}) é {media:.2f}. "
-                        f"Como você escolheu 'melhor', defina um score entre a média ({media:.2f}) e o melhor ({score_max:.2f}).")
-                score_val = st.slider(
-                    f"Qual o score deseja atribuir para '{alt_atual}'?",
-                    min_value=float(media),
-                    max_value=float(score_max),
-                    value=float((media + score_max) / 2.0),
-                    step=0.1,
-                    key=f"qual_val_{crit}_{alt_atual}"
-                )
-            else:
-                st.info(f"A média entre o melhor ({score_max:.2f}) e o pior ({score_min:.2f}) é {media:.2f}. "
-                        f"Como você escolheu 'pior', defina um score entre o pior ({score_min:.2f}) e a média ({media:.2f}).")
-                score_val = st.slider(
-                    f"Qual o score deseja atribuir para '{alt_atual}'?",
-                    min_value=float(score_min),
-                    max_value=float(media),
-                    value=float((score_min + media) / 2.0),
-                    step=0.1,
-                    key=f"qual_val_{crit}_{alt_atual}"
-                )
+            # HTML Guide for Anchors, Midpoint Indicator, and Arrows
+            st.markdown(f"""
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 15px; margin-bottom: 5px;">
+                <div style="width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 0.95rem;">
+                    <span style="color: #ff4b4b;">🔴 Pior: {pior_alt} ({score_min:.1f})</span>
+                    <span style="color: #00c0f2;">🟢 Melhor: {melhor_alt} ({score_max:.1f})</span>
+                </div>
+                <div style="width: 100%; display: flex; align-items: center; justify-content: center; margin-top: 12px; font-size: 0.9rem; color: gray; font-weight: 500;">
+                    <div style="flex: 1; text-align: right; padding-right: 15px;">
+                        ← mais perto de {pior_alt}
+                    </div>
+                    <div style="flex: 1; text-align: left; padding-left: 15px;">
+                        mais perto de {melhor_alt} →
+                    </div>
+                </div>
+                <div style="font-size: 1.3rem; line-height: 1; color: gray; margin-top: -4px; margin-bottom: -15px;">
+                    |
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            score_val = st.slider(
+                f"Qual o score deseja atribuir para '{alt_atual}'?",
+                min_value=float(val_min),
+                max_value=float(val_max),
+                value=float(media),
+                step=0.1,
+                key=f"qual_val_{crit}_{alt_atual}"
+            )
                 
             if st.button(f"Confirmar Score para {alt_atual}", key=f"btn_conf_score_{crit}_{alt_atual}"):
                 salvar_estado_historico()
+                st.session_state.qual_scores_temp[alt_atual] = score_val
                 st.session_state.qual_alt_idx += 1
                 
                 if st.session_state.qual_alt_idx >= len(st.session_state.qual_restantes):
@@ -459,8 +483,21 @@ Hyundai HB20,84000,300,13.1,14.5,3""", language="csv")
                         st.session_state.sub_setup_step = "natureza"
                     else:
                         st.session_state.tabela = st.session_state.tabela_construcao
-                        st.session_state.passo = "compensacao"
+                        st.session_state.passo = "visualizar_inicial"
                 st.rerun()
+
+elif st.session_state.passo == "visualizar_inicial":
+    st.header("Matriz de Consequências Inicial")
+    st.info("Esta é a matriz de consequências inicial gerada a partir dos dados preenchidos.")
+    
+    st.subheader("Matriz de Consequências")
+    st.table(estilizar_tabela(st.session_state.tabela, st.session_state.objetivo))
+    
+    if st.button("Prosseguir para Próxima Etapa", key="btn_prosseguir_inicial"):
+        salvar_estado_historico()
+        st.session_state.passo = "compensacao"
+        st.session_state.compensacao_step = "checar_dominancia"
+        st.rerun()
 
 # 3. INTERFACE DE COMPENSAÇÃO
 elif st.session_state.passo == "compensacao":
@@ -536,14 +573,14 @@ elif st.session_state.passo == "compensacao":
         if quase_dominacoes:
             opcao_acao = st.radio(
                 "O que deseja fazer nesta rodada?",
-                ["Resolver uma Compensação Simples (Quase-Dominação)", "Fazer uma Compensação Subjetiva (Manual)"],
+                ["Resolver uma Compensação Simples", "Fazer uma Compensação Padrão"],
                 key="opcao_acao_compensacao"
             )
         else:
-            opcao_acao = "Fazer uma Compensação Subjetiva (Manual)"
+            opcao_acao = "Fazer uma Compensação Padrão"
             
-        if opcao_acao == "Resolver uma Compensação Simples (Quase-Dominação)":
-            st.subheader("3.1. Compensação Simples (Quase-Dominação)")
+        if opcao_acao == "Resolver uma Compensação Simples":
+            st.subheader("3.1. Compensação Simples")
             st.info("Quase dominação significa que uma alternativa só não domina a outra por causa de exatamente um atributo.")
             
             options = []
@@ -668,7 +705,7 @@ elif st.session_state.passo == "compensacao":
                         st.session_state.compensacao_step = "transicao_pos_compensacao"
                         st.rerun()
         else:
-            st.subheader("3.2. Compensações Subjetivas")
+            st.subheader("3.2. Compensação Padrão")
             
             if 'interacao' not in st.session_state:
                 st.session_state.interacao = {
@@ -723,6 +760,12 @@ elif st.session_state.passo == "compensacao":
                             
             # Data Rows
             novos_valores = {}
+            max_val, min_val = None, None
+            if step == 'selecionar_valor':
+                col_vals = tabela_completa[interac['attr_eliminar']]
+                max_val = col_vals.max()
+                min_val = col_vals.min()
+                
             for alt in tabela_completa.index:
                 cols = st.columns(N)
                 with cols[0]:
@@ -733,10 +776,13 @@ elif st.session_state.passo == "compensacao":
                     with cols[j + 1]:
                         if step == 'selecionar_valor':
                             if col_name == interac['attr_eliminar']:
-                                if st.button(f"{val_atual:.2f}", key=f"btn_cell_{alt}_{col_name}"):
-                                    st.session_state.interacao['valor_alvo'] = val_atual
-                                    st.session_state.interacao['passo_interativo'] = 'selecionar_compensar'
-                                    st.rerun()
+                                if np.isclose(val_atual, max_val) or np.isclose(val_atual, min_val):
+                                    if st.button(f"{val_atual:.2f}", key=f"btn_cell_{alt}_{col_name}"):
+                                        st.session_state.interacao['valor_alvo'] = val_atual
+                                        st.session_state.interacao['passo_interativo'] = 'selecionar_compensar'
+                                        st.rerun()
+                                else:
+                                    st.write(f"{val_atual:.2f}")
                             else:
                                 st.write(f"{val_atual:.2f}")
                         elif step == 'preencher_valores':

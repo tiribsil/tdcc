@@ -521,7 +521,7 @@ class InterfaceTerminal(InterfaceBase):
     def pedir_novo_valor_compensacao(self, alternativa: str, atributo_eliminar: str, 
                                     valor_atual: float, valor_alvo: float, 
                                     atributo_compensar: str, valor_atual_compensar: float) -> float:
-        print(f"\n  [Passo 3.2: Compensação Subjetiva para '{alternativa}']")
+        print(f"\n  [Passo 3.2: Compensação Padrão para '{alternativa}']")
         print(f"    Mudar '{atributo_eliminar}' de {valor_atual:.2f} para o valor fixado {valor_alvo:.2f}.")
         print(f"    O valor atual de '{atributo_compensar}' é {valor_atual_compensar:.2f}.")
         while True:
